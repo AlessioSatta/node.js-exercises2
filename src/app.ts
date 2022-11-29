@@ -3,10 +3,12 @@ import "express-async-errors";
 import prisma from "./lib/prisma/client";
 import { validationErrorMiddleware } from "./lib/middleware/validation";
 import { validate, albumSchema, AlbumData } from "./lib/middleware/validation";
+import { initCorsMiddleware } from "./lib/middleware/cors";
 
 const app = express();
 
 app.use(express.json());
+app.use(initCorsMiddleware);
 
 app.get("/albums", async (request, response) => {
     const albums = await prisma.album.findMany();
