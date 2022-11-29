@@ -31,3 +31,44 @@ describe("GET /albums", () => {
         expect(response.body).toEqual(albums);
     });
 });
+
+describe("POST /albums", () => {
+    test("Valid request", async () => {
+        const album = {
+            id: 1,
+            name: "Opeth",
+            description: null,
+            title: "Blackwater Park",
+        };
+
+        // @ts-ignore
+        prismaMock.album.create.mockResolvedValue(album);
+
+        const respone = await request
+            .post("/albums")
+            .send({
+                name: "Opeth",
+                title: "Blackwater Park",
+            })
+            .expect(201)
+            .expect("Content-Type", /application\/json/);
+        expect(respone.body).toEqual(album);
+    });
+
+    test("Invalid request", async () => {
+        const album = {
+            title: "Blackwater Park",
+        };
+
+        const respone = await request
+            .post("/albums")
+            .send(album)
+            .expect(422)
+            .expect("Content-Type", /application\/json/);
+        expect(respone.body).toEqual({
+            errors: {
+                body: expect.any(Array),
+            },
+        });
+    });
+});
