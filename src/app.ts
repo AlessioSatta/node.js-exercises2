@@ -63,6 +63,20 @@ app.put(
     }
 );
 
+app.delete("/albums/:id(\\d+)", async (request, response, next) => {
+    const albumId = Number(request.params.id);
+
+    try {
+        await prisma.album.delete({
+            where: { id: albumId },
+        });
+        response.status(204).end();
+    } catch (error) {
+        response.status(404);
+        next(`Cannot DELETE /albums/${albumId}`);
+    }
+});
+
 app.use(validationErrorMiddleware);
 
 export default app;

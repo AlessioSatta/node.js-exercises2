@@ -186,3 +186,29 @@ describe("PUT /albums/:id", () => {
         expect(response.text).toContain("Cannot PUT /albums/ciao");
     });
 });
+
+describe("DELETE /albums/:id", () => {
+    test("Valid requet", async () => {
+        const reponse = await request.delete("/albums/1").expect(204);
+        expect(reponse.text).toEqual("");
+    });
+
+    test("Invalid album ID", async () => {
+        const respone = await request
+            .delete("/albums/miao")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(respone.text).toContain("Cannot DELETE /albums/miao");
+    });
+
+    test("Album doesn't exist", async () => {
+        // @ts-ignore
+        prismaMock.album.delete.mockRejectedValue(new Error("Error"));
+
+        const respone = await request
+            .delete("/albums/16")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(respone.text).toContain("Cannot DELETE /albums/16");
+    });
+});
