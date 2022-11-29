@@ -43,6 +43,26 @@ app.post(
     }
 );
 
+app.put(
+    "/albums/:id(\\d+)",
+    validate({ body: albumSchema }),
+    async (request, response, next) => {
+        const albumId = Number(request.params.id);
+        const albumData: AlbumData = request.body;
+
+        try {
+            const album = await prisma.album.update({
+                where: { id: albumId },
+                data: albumData,
+            });
+            response.status(200).json(album);
+        } catch (error) {
+            response.status(404);
+            next(`Cannot PUT /albums/${albumId}`);
+        }
+    }
+);
+
 app.use(validationErrorMiddleware);
 
 export default app;
