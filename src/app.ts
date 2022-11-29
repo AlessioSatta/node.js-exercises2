@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import "express-async-errors";
 import prisma from "./lib/prisma/client";
 import { validationErrorMiddleware } from "./lib/middleware/validation";
@@ -12,6 +12,21 @@ app.get("/albums", async (request, response) => {
     const albums = await prisma.album.findMany();
 
     response.json(albums);
+});
+
+app.get("/albums/:id(\\d+)", async (request, reponse, next) => {
+    const albumId = Number(request.params.id);
+
+    const album = await prisma.album.findUnique({
+        where: { id: albumId },
+    });
+
+    if (!album) {
+        response.status(404);
+        return next(`Cannot GET /albums/${albumId}`);
+    }
+
+    reponse.json(album);
 });
 
 app.post(

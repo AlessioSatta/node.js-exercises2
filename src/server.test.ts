@@ -32,6 +32,47 @@ describe("GET /albums", () => {
     });
 });
 
+describe("GET /albums/:id", () => {
+    test("Valide request", async () => {
+        const album = {
+            id: 1,
+            name: "Opeth",
+            desciption: null,
+            title: "Blackwater Park",
+            createdAt: "2022-11-29T08:24:16.493Z",
+            updatedAt: "2022-11-29T08:23:58.624Z",
+        };
+
+        // @ts-ignore
+        prismaMock.album.findUnique.mockResolvedValue(album);
+
+        const response = await request
+            .get("/albums/1")
+            .expect(200)
+            .expect("Content-Type", /application\/json/);
+        expect(response.body).toEqual(album);
+    });
+
+    test("Invalid album ID", async () => {
+        const reponse = await request
+            .get("/albums/ciao")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(reponse.text).toContain("Cannot GET /albums/ciao");
+    });
+
+    test("Album doesn't exist", async () => {
+        // @ts-ignore
+        prismaMock.album.findUnique.mockResolvedValue(null);
+
+        const reponse = await request
+            .get("/albums/16")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(reponse.text).toContain("Cannot GET /albums/16");
+    });
+});
+
 describe("POST /albums", () => {
     test("Valid request", async () => {
         const album = {
