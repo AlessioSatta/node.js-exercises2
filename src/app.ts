@@ -8,7 +8,7 @@ import { initCorsMiddleware } from "./lib/middleware/cors";
 const app = express();
 
 app.use(express.json());
-app.use(initCorsMiddleware);
+app.use(initCorsMiddleware());
 
 app.get("/albums", async (request, response) => {
     const albums = await prisma.album.findMany();
