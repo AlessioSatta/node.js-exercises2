@@ -27,7 +27,8 @@ describe("GET /albums", () => {
         const response = await request
             .get("/albums")
             .expect(200)
-            .expect("Content-Type", /application\/json/);
+            .expect("Content-Type", /application\/json/)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
         expect(response.body).toEqual(albums);
     });
 });
@@ -49,7 +50,8 @@ describe("GET /albums/:id", () => {
         const response = await request
             .get("/albums/1")
             .expect(200)
-            .expect("Content-Type", /application\/json/);
+            .expect("Content-Type", /application\/json/)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
         expect(response.body).toEqual(album);
     });
 
@@ -92,7 +94,8 @@ describe("POST /albums", () => {
                 title: "Blackwater Park",
             })
             .expect(201)
-            .expect("Content-Type", /application\/json/);
+            .expect("Content-Type", /application\/json/)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
         expect(respone.body).toEqual(album);
     });
 
@@ -136,7 +139,8 @@ describe("PUT /albums/:id", () => {
                 title: "Blackwater Park",
             })
             .expect(200)
-            .expect("Content-Type", /application\/json/);
+            .expect("Content-Type", /application\/json/)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
         expect(respone.body).toEqual(album);
     });
 
@@ -189,26 +193,79 @@ describe("PUT /albums/:id", () => {
 
 describe("DELETE /albums/:id", () => {
     test("Valid requet", async () => {
-        const reponse = await request.delete("/albums/1").expect(204);
+        const reponse = await request
+            .delete("/albums/1")
+            .expect(204)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
         expect(reponse.text).toEqual("");
     });
 
     test("Invalid album ID", async () => {
-        const respone = await request
+        const response = await request
             .delete("/albums/miao")
             .expect(404)
             .expect("Content-Type", /text\/html/);
-        expect(respone.text).toContain("Cannot DELETE /albums/miao");
+        expect(response.text).toContain("Cannot DELETE /albums/miao");
     });
 
     test("Album doesn't exist", async () => {
         // @ts-ignore
         prismaMock.album.delete.mockRejectedValue(new Error("Error"));
 
-        const respone = await request
+        const response = await request
             .delete("/albums/16")
             .expect(404)
             .expect("Content-Type", /text\/html/);
-        expect(respone.text).toContain("Cannot DELETE /albums/16");
+        expect(response.text).toContain("Cannot DELETE /albums/16");
+    });
+});
+
+//** Questi test dipendono da ./src/lib/middleware/multer.mock.ts che usa il .memoryStorage e quindi non avremo file salvati nel disco durante i test */
+describe("POST /albums/:id/photo", () => {
+    test("Valid request JPG", async () => {
+        await request
+            .post("/albums/2/photo")
+            .attach("photo", "test-pictures/opeth.jpg")
+            .expect(201)
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
+    });
+
+    test("Invalid request text file", async () => {
+        const reponse = await request
+            .post("/albums/2/photo")
+            .attach("photo", "test-pictures/opeth.txt")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(reponse.text).toContain(
+            "Error: file extension must be png or jpeg"
+        );
+    });
+
+    test("Album doesn't exist", async () => {
+        // @ts-ignore
+        prismaMock.album.update.mockRejectedValue(new Error("Error"));
+
+        const response = await request
+            .post("/albums/16/photo")
+            .attach("photo", "test-pictures/opeth.jpg")
+            .expect(400)
+            .expect("Content-Type", /text\/html/);
+        expect(response.text).toContain("Cannot POST /albums/16/photo");
+    });
+
+    test("Invalid albums id", async () => {
+        const response = await request
+            .post("/albums/miao/photo")
+            .expect(404)
+            .expect("Content-Type", /text\/html/);
+        expect(response.text).toContain("Cannot POST /albums/miao/photo");
+    });
+
+    test("Invalid request, no file upload", async () => {
+        const response = await request
+            .post("/albums/2/photo")
+            .expect(400)
+            .expect("Content-Type", /text\/html/);
+        expect(response.text).toContain("No file uploaded");
     });
 });

@@ -4,11 +4,13 @@ import prisma from "./lib/prisma/client";
 import { validationErrorMiddleware } from "./lib/middleware/validation";
 import { validate, albumSchema, AlbumData } from "./lib/middleware/validation";
 import { initCorsMiddleware } from "./lib/middleware/cors";
+import { initMulterMiddleware } from "./lib/middleware/multer";
 
 const app = express();
+const ulpload = initMulterMiddleware();
 
 app.use(express.json());
-app.use(initCorsMiddleware);
+app.use(initCorsMiddleware());
 
 app.get("/albums", async (request, response) => {
     const albums = await prisma.album.findMany();
@@ -79,6 +81,33 @@ app.delete("/albums/:id(\\d+)", async (request, response, next) => {
     }
 });
 
+app.post(
+    "/albums/:id(\\d+)/photo",
+    ulpload.single("photo"),
+    async (request, response, next) => {
+        if (!request.file) {
+            response.status(400);
+            return next("No file uploaded");
+        }
+
+        const albumId = Number(request.params.id);
+        const photoFilename = request.file.filename;
+
+        try {
+            await prisma.album.update({
+                where: { id: albumId },
+                data: { photoFilename: photoFilename },
+            });
+
+            response.status(201).json({ photoFilename });
+        } catch (error) {
+            response.status(400);
+            next(`Cannot POST /albums/${albumId}/photo`);
+        }
+    }
+);
+
+app.use("/albums/photo", express.static("uploads"));
 app.use(validationErrorMiddleware);
 
 export default app;

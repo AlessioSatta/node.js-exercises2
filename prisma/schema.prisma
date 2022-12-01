@@ -11,10 +11,11 @@ datasource db {
 }
 
 model Album {
-    id          Int      @id @default(autoincrement())
-    name        String   @db.VarChar(255)
-    description String?
-    title       String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id            Int      @id @default(autoincrement())
+    name          String   @db.VarChar(255)
+    description   String?
+    title         String
+    photoFilename String?  @db.VarChar(255)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
 }
