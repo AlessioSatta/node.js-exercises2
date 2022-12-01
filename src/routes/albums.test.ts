@@ -1,6 +1,6 @@
 import supertest from "supertest";
-import app from "./app";
-import { prismaMock } from "./lib/prisma/client.mock";
+import app from "../app";
+import { prismaMock } from "../lib/prisma/client.mock";
 
 const request = supertest(app);
 
@@ -234,7 +234,7 @@ describe("POST /albums/:id/photo", () => {
         const reponse = await request
             .post("/albums/2/photo")
             .attach("photo", "test-pictures/opeth.txt")
-            .expect(404)
+            .expect(500)
             .expect("Content-Type", /text\/html/);
         expect(reponse.text).toContain(
             "Error: file extension must be png or jpeg"
