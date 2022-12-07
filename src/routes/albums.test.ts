@@ -95,7 +95,8 @@ describe("POST /albums", () => {
             })
             .expect(201)
             .expect("Content-Type", /application\/json/)
-            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080")
+            .expect("Access-Control-Allow-Credentials", "true");
         expect(respone.body).toEqual(album);
     });
 
@@ -140,7 +141,8 @@ describe("PUT /albums/:id", () => {
             })
             .expect(200)
             .expect("Content-Type", /application\/json/)
-            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080")
+            .expect("Access-Control-Allow-Credentials", "true");
         expect(respone.body).toEqual(album);
     });
 
@@ -196,7 +198,8 @@ describe("DELETE /albums/:id", () => {
         const reponse = await request
             .delete("/albums/1")
             .expect(204)
-            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080")
+            .expect("Access-Control-Allow-Credentials", "true");
         expect(reponse.text).toEqual("");
     });
 
@@ -227,7 +230,8 @@ describe("POST /albums/:id/photo", () => {
             .post("/albums/2/photo")
             .attach("photo", "test-pictures/opeth.jpg")
             .expect(201)
-            .expect("Access-Control-Allow-Origin", "http://localhost:8080");
+            .expect("Access-Control-Allow-Origin", "http://localhost:8080")
+            .expect("Access-Control-Allow-Credentials", "true");
     });
 
     test("Invalid request text file", async () => {

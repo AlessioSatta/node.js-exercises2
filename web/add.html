@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Add album</title>
+    </head>
+    <body>
+        <p>
+            <a
+                href="http://localhost:3000/auth/login?redirectTo=http://locahost:8080/add"
+                >Login</a
+            >
+        </p>
+
+        <p>
+            <a
+                href="http://localhost:3000/auth/logout'redirectTo=http://lcoalhost:8080/add"
+            ></a>
+        </p>
+
+        <form action="http://localhost:3000/albums" id="form-add">
+            <label> Name: <input type="text" name="name" /> </label>
+            <label> Title: <input type="text" name="title" /> </label>
+
+            <input type="submit" value="Add album" />
+        </form>
+
+        <script>
+            async function addAlbum(event) {
+                event.preventDefault();
+
+                const form = event.currentTarget;
+                const formData = new FormData(form);
+                const plainFormData = Object.fromEntries(formData.entries());
+                const formDataJsonString = JSON.stringify(plainFormData);
+                const url = form.action;
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/jeson",
+                    },
+                    body: formDataJsonString,
+                    credentials: "include",
+                });
+
+                const album = await response.json();
+            }
+
+            const addForm = document.getElementById("form-add");
+
+            addForm.addEventListener("submit", addAlbum);
+        </script>
+    </body>
+</html>

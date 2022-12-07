@@ -2,7 +2,9 @@ import { Validator, ValidationError } from "express-json-validator-middleware";
 import { ErrorRequestHandler } from "express";
 import addFormats from "ajv-formats";
 
-const validator = new Validator({});
+const validator = new Validator({
+    coerceTypes: true,
+});
 
 addFormats(validator.ajv, ["date-time"])
     .addKeyword("kind")
